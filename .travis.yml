@@ -22,13 +22,6 @@ language: java
 services:
   - docker
 
-notifications:
-  email: false
-  webhooks:
-    urls:
-      # travis2slack webhook to enable DMs on openwhisk-team.slack.com to PR authors with TravisCI results
-      secure: "RjyijvETg6UQu6JP8pXlAo2FKnACtRWuWVqQRzMbiARlKF5nWC4AZqQqzzebyezFt8mkfY3DTEKxL//IxnqmO8sl68setE/RATGXVPnHTyAs4kJcvp7BlS3v0yl9v8usE14AmsBxMygg8C5rbRLeEsxMqts9VbRycxCM3Ml5deQVRFhaBMakjuEcVRqDzmArOlLTJto/qcV8orv6arIdNzBOMNQLN25YnVnoGeoCd/8za6E2HiWV1+plv0wrpAJ3jECu2l6ADD/OYKQTgO+2Zh8rfpC4L4FG86BiEfaZkH2ptKtmt7jSfr/oG0tI0oAhjglTlbj4kaLMPejBB1c0B2R2YV2nRJwsFQ8jQfMFJDjqohaAh6hd0xOih3u3nkgzCoVh0l2zA7NJ05GquJFDlIoM0W2SAov3An9SFIt1WpigDS4YH06k5YlEyFSIJjJgwYwKLjvyeEL39FeVbb6Lt0DIXaaftn5KH31/ueHYhxeMTwpAM6PAHcvxWd7w/gritljwlNVHXhdmcqMq4Kx32E/prohwXGpakCsrhDeqzIKLDt0yCvwU2dgHr6JN6BY31EIt6T9qBOQ89ECpDeLRu66yPENWqAL3RsXUrgoKfm9OAEwLx3cQrCNakdpIOPwtL5+2SiydqjbMV27SGEkr0BObwp0r1th7+gN+a9rISEo="
-
 before_install:
   - "./tools/travis/setup.sh"
 install: true
@@ -36,27 +29,13 @@ script:
   - "./tools/travis/build.sh && ./tools/travis/test.sh"
 deploy:
   - provider: script
-    script: "./tools/travis/publish.sh openwhisk ${TRAVIS_TAG%@*} ${TRAVIS_TAG##*@}"
+    script: "./tools/travis/publish.sh nimbella 7.3 ${TRAVIS_TAG} && ./tools/travis/publish.sh nimbella 7.4 ${TRAVIS_TAG} && ./tools/travis/publish.sh nimbella 8.0 ${TRAVIS_TAG}"
     on:
       tags: true
       all_branches: true
-      repo: apache/openwhisk-runtime-php
+      repo: nimbella-corp/openwhisk-runtime-php
   - provider: script
-    script: "./tools/travis/publish.sh openwhisk 7.3 nightly"
+    script: "./tools/travis/publish.sh nimbella 7.3 nightly && ./tools/travis/publish.sh nimbella 7.4 nightly && ./tools/travis/publish.sh nimbella 8.0 nightly"
     on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
-  - provider: script
-    script: "./tools/travis/publish.sh openwhisk 7.4 nightly"
-    on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
-  - provider: script
-    script: "./tools/travis/publish.sh openwhisk 8.0 nightly"
-    on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
-env:
-  global:
-  - secure: AJZRyRO/ZkStfywAZVN8bk1YmQLHOTD37QdjBsw77CdqnW9Y+a7V3+wZD3W+obQrEhNR9spkKlMh+biE2HFoRwr/AZ3Pl0frzhlyzZXaLUgJMK7wfQzuFVVgjODs4ld2PrJRv5LibFwco9cosDYHe9xlqQ+/Yg/QaWZPK0rBS1UFBxHh1cOcIJ0N80vDXgZbqmH9nuE7W5GvNGzDg9p16w+u48a6UF7UVzf+RU/uR13q7LrAq/FD7dtdiHpamIw4MiGWhW/GZQrwZpzovfGFr365uEVWu+ssQJld+sbeVoN9ED6kOrfYTFg+l7+8cvjhkZ9LUWELK/zVFCu4wYmuhk6utUreBD5rzsfVQmt0Ups7ANIqVS0874CW6WdxO+wPx5Me5k3azXbLgk6mPt4hL0+nlUZ1ycP2rEN/RnL2r8UJAN3vdvL1nXrTTulwNLwS8U3Lc+4yEV+YHQR9c9pYdw3VPx1vNVjEQ34djeoiVxROueBDroZfP3Ft5IazQx4sGPHWfFS1yH5JD58S7YYlz8QEope+Cby1Sj4MUJIjqlT9UgQXq1UydzAWmQPcn81scfITTAWzKHvIXxKrffiVPwkMG67uaUiobd9tDYr+CWpuKXckOSuOi0CwRuGJKyc7lGQvW2zVg7uC56bA9LMD91HYCsRUbNuOox9TXVLjGtM=
-  - secure: oQ+JHub/fewOe+k3GaVGeEMflrhOY3i3lpSv67oAOMwmRnTjop9UiE8TS/54K2s+LU7iSt6xJwvMmowjmLYSbzl1lSRCk27zudxLywJbF+wo3j5GfY6mS4XD1qI2aA4MDZGbwHezUG1+bzpRefM3B1ms71NGqLCaYFasxWyEk9+44yC2sQ29LCc+O2nVJIRAs8jct8APqewkgrjHHMTWPjeixTCPPDXSl3MSumBMCpU3TBVS8vzsS9aTFj++HPMaDit1ku4FntdayZWZ/Ytu//DUUtWjCLd/rc1Xr+W/j21KKGXohvqfL3bddFUq/0RVRv5EgQW6UFslEyfVI9SMtC+Ax/b/3hRYJYD+/14b1aJ5IMn3CMdzldWTU7KXnbZlHvA3gbj5rRJFlgMS5Iizce44FM//Xi0fwhvaVFnSBvlbUJy3odwhmVkVLSFEJJipx+0FxZmKUhF2HyTuGWMa7uqQPh+WBYJ+NVvJwNfWvO/q2etyfD6wlP4VHBF2t5uV6Qipn0oyfw4PI1y96xv85SndtFdEYaCY2vooMf3k2m+rh3w7zRCM8Fsv1TVpHnikNxNaWAxB2ifu7Xd6r1pYD3diUaKim7jSse4gjoUweWGkOUUc9UtGPTGxocQT/kMqPsXNdIPsfE7xsUGSgLImtXy/L3M+CReoiN5f3Z1kigA=
+      branch: dev
+      repo: nimbella-corp/openwhisk-runtime-php
