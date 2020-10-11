@@ -22,12 +22,6 @@ language: java
 services:
   - docker
 
-notifications:
-  email: false
-  webhooks:
-    urls:
-      # travis2slack webhook to enable DMs on openwhisk-team.slack.com to PR authors with TravisCI results
-      secure: "5e+MGAQjNPdW7Hb+O8/Gj/ZJfKpfcv5QUb9GH7gWFygQvwgK4FIqKXMJi//YdnfO2c783ArHMqaftcUBHH+h9hL0eYCd7LboKQfFGsM43PazKhPVeI2DcXic8xqOR1UgWhmtq9+OQbR/SCZedSG1vrgbMfcp9fhu1lEqxmQ5rBGu9C93l9dwNdX6sMrFdmxVINab8/lwuAbw8B6TJldzya9S1xn4wbPDWqmm+YvIB478ngmzUEBo+qyY1r1WgY5SbbKTm3dUJOWyYqmPNpTcfuqQ6/YCOMEgYW13W6BAdNrPfrj2zVSTdIZ2HBjovNNI4HxrsMQPl1HUqwCDLEw0U+DRe6ep72lhuzr6q9u7ekhj8GObTWIg4pMoDqd4Fo9RcXShX4Tl+icLNwnd2BD5Lis9n6GDbzQ3TXoXGsrlrHMQw5sGCWi03jn/U0hzXNooDKLk/Dr0aQs1JyUqWTioiGJX/EFMzC3YvdulC3lRtNUld4kiSPk07Ke6a8F+9nn6GYZ1/FqZptaFA/ocC+aHlvjeB4U0BQFzgGVi88yzJz3hmjoQiSiKUoVqupBNU54XsUwrIR3iD/dOQs2QxR9PW2anghUXNf6PjdSFkBK38VmX5rHbDtWKsD4z+B+Q04dbD4WLAgni67MMgqg4dkmIo3fFhrz9XYMO0mZ66gfJ6F8="
 before_install:
   - "./tools/travis/setup.sh"
 install: true
@@ -35,27 +29,18 @@ script:
   - "./tools/travis/build.sh && ./tools/travis/test.sh"
 deploy:
   - provider: script
-    script: "./tools/travis/publish.sh openwhisk ${TRAVIS_TAG%@*} ${TRAVIS_TAG##*@}"
+    script: "./tools/travis/publish.sh nimbella ${TRAVIS_TAG%@*} ${TRAVIS_TAG##*@}"
     on:
       tags: true
       all_branches: true
-      repo: apache/openwhisk-runtime-php
+      repo: nimbella-corp/openwhisk-runtime-php
   - provider: script
-    script: "./tools/travis/publish.sh openwhisk 7.2 nightly"
+    script: "./tools/travis/publish.sh nimbella 7.3 nightly"
     on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
+      branch: dev-2020-10-10
+      repo: nimbella-corp/openwhisk-runtime-php
   - provider: script
-    script: "./tools/travis/publish.sh openwhisk 7.3 nightly"
+    script: "./tools/travis/publish.sh nimbella 7.4 nightly"
     on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
-  - provider: script
-    script: "./tools/travis/publish.sh openwhisk 7.4 nightly"
-    on:
-      branch: master
-      repo: apache/openwhisk-runtime-php
-env:
-  global:
-  - secure: AJZRyRO/ZkStfywAZVN8bk1YmQLHOTD37QdjBsw77CdqnW9Y+a7V3+wZD3W+obQrEhNR9spkKlMh+biE2HFoRwr/AZ3Pl0frzhlyzZXaLUgJMK7wfQzuFVVgjODs4ld2PrJRv5LibFwco9cosDYHe9xlqQ+/Yg/QaWZPK0rBS1UFBxHh1cOcIJ0N80vDXgZbqmH9nuE7W5GvNGzDg9p16w+u48a6UF7UVzf+RU/uR13q7LrAq/FD7dtdiHpamIw4MiGWhW/GZQrwZpzovfGFr365uEVWu+ssQJld+sbeVoN9ED6kOrfYTFg+l7+8cvjhkZ9LUWELK/zVFCu4wYmuhk6utUreBD5rzsfVQmt0Ups7ANIqVS0874CW6WdxO+wPx5Me5k3azXbLgk6mPt4hL0+nlUZ1ycP2rEN/RnL2r8UJAN3vdvL1nXrTTulwNLwS8U3Lc+4yEV+YHQR9c9pYdw3VPx1vNVjEQ34djeoiVxROueBDroZfP3Ft5IazQx4sGPHWfFS1yH5JD58S7YYlz8QEope+Cby1Sj4MUJIjqlT9UgQXq1UydzAWmQPcn81scfITTAWzKHvIXxKrffiVPwkMG67uaUiobd9tDYr+CWpuKXckOSuOi0CwRuGJKyc7lGQvW2zVg7uC56bA9LMD91HYCsRUbNuOox9TXVLjGtM=
-  - secure: oQ+JHub/fewOe+k3GaVGeEMflrhOY3i3lpSv67oAOMwmRnTjop9UiE8TS/54K2s+LU7iSt6xJwvMmowjmLYSbzl1lSRCk27zudxLywJbF+wo3j5GfY6mS4XD1qI2aA4MDZGbwHezUG1+bzpRefM3B1ms71NGqLCaYFasxWyEk9+44yC2sQ29LCc+O2nVJIRAs8jct8APqewkgrjHHMTWPjeixTCPPDXSl3MSumBMCpU3TBVS8vzsS9aTFj++HPMaDit1ku4FntdayZWZ/Ytu//DUUtWjCLd/rc1Xr+W/j21KKGXohvqfL3bddFUq/0RVRv5EgQW6UFslEyfVI9SMtC+Ax/b/3hRYJYD+/14b1aJ5IMn3CMdzldWTU7KXnbZlHvA3gbj5rRJFlgMS5Iizce44FM//Xi0fwhvaVFnSBvlbUJy3odwhmVkVLSFEJJipx+0FxZmKUhF2HyTuGWMa7uqQPh+WBYJ+NVvJwNfWvO/q2etyfD6wlP4VHBF2t5uV6Qipn0oyfw4PI1y96xv85SndtFdEYaCY2vooMf3k2m+rh3w7zRCM8Fsv1TVpHnikNxNaWAxB2ifu7Xd6r1pYD3diUaKim7jSse4gjoUweWGkOUUc9UtGPTGxocQT/kMqPsXNdIPsfE7xsUGSgLImtXy/L3M+CReoiN5f3Z1kigA=
+      branch: dev-2020-10-10
+      repo: nimbella-corp/openwhisk-runtime-php
