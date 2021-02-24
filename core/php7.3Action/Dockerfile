@@ -48,6 +48,7 @@ RUN \
       libxml2-dev \
       libzip-dev \
       postgresql-server-dev-9.6 \
+      python \
       unzip \
       zlib1g-dev \
     # Cleanup apt data, we do not need them later on.
