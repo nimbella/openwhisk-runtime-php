@@ -41,6 +41,7 @@ ARG GO_PROXY_BUILD_FROM=release
 # install PHP extensions
 RUN apt-get -y update \
     && apt-get -y install --no-install-recommends \
+      python \
       unzip \
       libfreetype6 \
       libicu63 \
@@ -100,6 +101,9 @@ RUN curl -s -f -L -o /tmp/installer.php https://getcomposer.org/installer \
 RUN mkdir -p /phpAction/composer
 COPY composer.json /phpAction/composer
 RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-scripts --prefer-dist --no-dev -o && rm composer.lock
+
+# install nim
+RUN curl https://apigcp.nimbella.io/downloads/nim/nim-install-linux.sh | bash
 
 # install proxy binary along with compile and launcher scripts
 RUN mkdir -p /phpAction/action

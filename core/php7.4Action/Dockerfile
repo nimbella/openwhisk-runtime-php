@@ -53,6 +53,7 @@ RUN \
       libxml2-dev \
       libzip-dev \
       postgresql-server-dev-11 \
+      python \
       unzip \
       zlib1g-dev \
     # Cleanup apt data, we do not need them later on.
@@ -84,6 +85,9 @@ RUN curl -s -f -L -o /tmp/installer.php https://getcomposer.org/installer \
 RUN mkdir -p /phpAction/composer
 COPY composer.json /phpAction/composer
 RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-scripts --prefer-dist --no-dev -o && rm composer.lock
+
+# install nim
+RUN curl https://apigcp.nimbella.io/downloads/nim/nim-install-linux.sh | bash
 
 # install proxy binary along with compile and launcher scripts
 RUN mkdir -p /phpAction/action
