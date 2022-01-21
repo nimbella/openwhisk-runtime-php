@@ -104,6 +104,7 @@ RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-script
 
 # install nim
 ARG NIM_INSTALL_SCRIPT=https://apigcp.nimbella.io/downloads/nim/nim-install-linux.sh
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl ${NIM_INSTALL_SCRIPT} | bash
 
 # install proxy binary along with compile and launcher scripts
