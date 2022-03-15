@@ -38,6 +38,7 @@ require 'index.php';
 // retrieve main function
 $__functionName = $argv[1] ?? 'main';
 
+$sentinel = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX\n";
 
 // read stdin
 while ($f = fgets(STDIN)) {
@@ -86,8 +87,8 @@ while ($f = fgets(STDIN)) {
     }
 
     // ensure that the sentinels will be on their own lines
-    file_put_contents('php://stderr', "\n");
-    file_put_contents('php://stdout', "\n");
+    file_put_contents('php://stderr', "\n" . $sentinel);
+    file_put_contents('php://stdout', "\n" . $sentinel);
 
     // cast result to an object for json_encode to ensure that an empty array becomes "{}" & send to fd/3
     fwrite($fd3, $result . "\n");
