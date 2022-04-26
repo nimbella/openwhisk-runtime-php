@@ -117,4 +117,7 @@ ADD compile.php /bin/compile.php
 ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 
+# the launcher must wait for an ack
+ENV OW_WAIT_FOR_ACK=1
+
 ENTRYPOINT [ "/bin/proxy" ]

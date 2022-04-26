@@ -39,6 +39,8 @@ $__functionName = $argv[1] ?? 'main';
 
 $sentinel = "XXX_THE_END_OF_A_WHISK_ACTIVATION_XXX\n";
 
+fwrite($fd3, "{\"ok\":true}\n");
+
 // read stdin
 while ($f = fgets(STDIN)) {
     // call the function
