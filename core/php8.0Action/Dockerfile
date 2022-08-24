@@ -29,11 +29,28 @@ FROM php:8.0-cli-buster
 
 COPY php.ini /usr/local/etc/php
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    # install Python to allow the builder to run correctly.
+    python \
+  && rm -rf /var/lib/apt/lists/*
+
 # install PHP extensions
 RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
     https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
   && chmod +x /usr/local/bin/install-php-extensions \
-  && install-php-extensions bcmath gd intl mysqli opcache pdo_mysql pdo_pgsql soap zip @composer
+  && install-php-extensions \
+    @composer \
+    bcmath \
+    gd \
+    intl \
+    mongodb \
+    mysqli \
+    opcache \
+    pdo_mysql \
+    pdo_pgsql \
+    soap \
+    zip
 
 # install default Composer dependencies
 COPY composer.json /phpAction/composer/composer.json
