@@ -17,46 +17,91 @@
 
 # build go proxy from source
 ARG GO_PROXY_BASE_IMAGE=golang:1.18
-FROM $GO_PROXY_BASE_IMAGE AS builder
-
+FROM $GO_PROXY_BASE_IMAGE AS builder_source
 ARG GO_PROXY_GITHUB_USER=nimbella-corp
 ARG GO_PROXY_GITHUB_BRANCH=dev
-RUN git clone --branch ${GO_PROXY_GITHUB_BRANCH} https://github.com/${GO_PROXY_GITHUB_USER}/openwhisk-runtime-go /src \
-  && cd /src \
-  && env GO111MODULE=on CGO_ENABLED=0 go build -o /bin/proxy main/proxy.go
+RUN git clone --branch ${GO_PROXY_GITHUB_BRANCH} \
+  https://github.com/${GO_PROXY_GITHUB_USER}/openwhisk-runtime-go /src ;\
+  cd /src ; env GO111MODULE=on CGO_ENABLED=0 go build main/proxy.go && \
+  mv proxy /bin/proxy
+
+# or build it from a release
+FROM $GO_PROXY_BASE_IMAGE AS builder_release
+ARG GO_PROXY_RELEASE_VERSION=1.15@1.17.0
+RUN curl -sL \
+  https://github.com/apache/openwhisk-runtime-go/archive/{$GO_PROXY_RELEASE_VERSION}.tar.gz\
+  | tar xzf -\
+  && cd openwhisk-runtime-go-*/main\
+  && GO111MODULE=on go build -o /bin/proxy
 
 FROM php:8.0-cli-buster
 
-COPY php.ini /usr/local/etc/php
-
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-    # install Python to allow the builder to run correctly.
-    python \
-  && rm -rf /var/lib/apt/lists/*
+# select the builder to use
+ARG GO_PROXY_BUILD_FROM=source
 
 # install PHP extensions
-RUN curl -sSLf -o /usr/local/bin/install-php-extensions \
-    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
-  && chmod +x /usr/local/bin/install-php-extensions \
-  && install-php-extensions \
-    @composer \
-    bcmath \
-    gd \
-    intl \
-    mongodb \
-    mysqli \
-    opcache \
-    pdo_mysql \
-    pdo_pgsql \
-    soap \
-    zip
+RUN apt-get -y update \
+    && apt-get -y install --no-install-recommends \
+      python \
+      unzip \
+      libfreetype6 \
+      libicu63 \
+      libjpeg62-turbo \
+      libpng16-16 \
+      libssl1.1 \
+      libxml2 \
+      libzip4 \
+      libpq5 \
+      \
+      libfreetype6-dev \
+      libicu-dev \
+      libjpeg-dev \
+      libpng-dev \
+      libssl-dev \
+      libxml2-dev \
+      libzip-dev \
+      postgresql-server-dev-11 \
+    \
+    && docker-php-ext-install \
+      bcmath \
+      gd \
+      intl \
+      mysqli \
+      opcache \
+      pdo_mysql \
+      pdo_pgsql \
+      soap \
+      zip \
+    \
+    && mkdir -p /usr/src/php/ext/mongodb \
+    && curl -fsSL https://pecl.php.net/get/mongodb-1.9.0RC1 | tar xvz -C "/usr/src/php/ext/mongodb" --strip 1 \
+    && docker-php-ext-install -j$(nproc) mongodb \
+    \
+    && apt-get purge -y --auto-remove $PHPIZE_DEPS \
+    && apt-get purge -y --auto-remove libclang-common-7-dev clang-7 llvm-7 llvm-7-dev \
+    && apt-get purge -y --auto-remove libfreetype6-dev \
+      libicu-dev \
+      libjpeg-dev \
+      libpng-dev \
+      libssl-dev \
+      libxml2-dev \
+      libzip-dev \
+      postgresql-server-dev-11 \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /usr/src/php
+
+COPY php.ini /usr/local/etc/php
+
+# install composer
+RUN curl -s -f -L -o /tmp/installer.php https://getcomposer.org/installer \
+    && php /tmp/installer.php --no-ansi --install-dir=/usr/bin --filename=composer \
+    && composer --ansi --version --no-interaction --no-plugins --no-scripts
 
 # install default Composer dependencies
-COPY composer.json /phpAction/composer/composer.json
-RUN cd /phpAction/composer \
-  && composer install --no-plugins --no-scripts --prefer-dist --no-dev -o \
-  && rm composer.lock
+RUN mkdir -p /phpAction/composer
+COPY composer.json /phpAction/composer
+RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-scripts --prefer-dist --no-dev -o && rm composer.lock
 
 # install nim
 ARG NIM_INSTALL_SCRIPT=https://apigcp.nimbella.io/downloads/nim/nim-install-linux.sh
@@ -66,9 +111,11 @@ RUN curl ${NIM_INSTALL_SCRIPT} | bash
 # install proxy binary along with compile and launcher scripts
 RUN mkdir -p /phpAction/action
 WORKDIR /phpAction
-COPY compile.php /bin/compile.php
-COPY runner.php /bin/runner.php
+COPY --from=builder_source /bin/proxy /bin/proxy_source
+COPY --from=builder_release /bin/proxy /bin/proxy_release
+RUN mv /bin/proxy_${GO_PROXY_BUILD_FROM} /bin/proxy
+ADD compile.php /bin/compile.php
+ADD runner.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 
-COPY --from=builder /bin/proxy /bin/proxy
 ENTRYPOINT [ "/bin/proxy" ]
