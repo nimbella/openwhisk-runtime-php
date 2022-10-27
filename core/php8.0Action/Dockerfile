@@ -103,10 +103,15 @@ RUN mkdir -p /phpAction/composer
 COPY composer.json /phpAction/composer
 RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-scripts --prefer-dist --no-dev -o && rm composer.lock
 
-# install nim
+# install nim (to be retired once we are fully switched to using doctl)
 ARG NIM_INSTALL_SCRIPT=https://apigcp.nimbella.io/downloads/nim/nim-install-linux.sh
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl ${NIM_INSTALL_SCRIPT} | bash
+
+# install doctl serverless (co-exist with nim temporarily)
+ARG DOCTL_DOWNLOAD=https://no-default.com
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl -L ${DOCTL_DOWNLOAD} | tar xzf - && mv doctl /usr/local/bin/doctl && doctl sls install
 
 # install proxy binary along with compile and launcher scripts
 RUN mkdir -p /phpAction/action
