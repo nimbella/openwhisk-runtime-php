@@ -103,12 +103,7 @@ RUN mkdir -p /phpAction/composer
 COPY composer.json /phpAction/composer
 RUN cd /phpAction/composer && /usr/bin/composer install --no-plugins --no-scripts --prefer-dist --no-dev -o && rm composer.lock
 
-# install nim (to be retired once we are fully switched to using functions-deployer)
-ARG NIM_INSTALL_SCRIPT
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl ${NIM_INSTALL_SCRIPT} | bash
-
-# install the functions-deployer (co-exist with nim temporarily)
+# install the functions-deployer
 ARG DEPLOYER_DOWNLOAD
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -L ${DEPLOYER_DOWNLOAD} | tar xzf - \
