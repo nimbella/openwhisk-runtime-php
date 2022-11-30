@@ -467,4 +467,42 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       runRes.get.fields.get("result") shouldBe Some(JsString("it works"))
     }
   }
+
+  it should s"support a function with a context parameter" in {
+    val (out, err) = withPhp7Container { c =>
+      val code =
+        """
+          | <?php
+          | function main(array $args, object $context) {
+          |     return [
+          |         "remaining_time" => $context->getRemainingTimeInMillis(),
+          |         "activation_id" => $context->activationId,
+          |         "function_name" => $context->functionName,
+          |         "function_version" => $context->functionVersion
+          |      ];
+          | }
+        """.stripMargin
+
+      val (initCode, _) = c.init(initPayload(code))
+      initCode should be(200)
+
+      val (runCode, out) = c.run(runPayload(
+        JsObject(),
+        Some(JsObject(
+          "deadline" -> "0".toJson,
+          "activation_id" -> "testid".toJson,
+          "action_name" -> "testfunction".toJson,
+          "action_version" -> "0.0.1".toJson
+        ))
+      ))
+      runCode should be(200)
+
+      out shouldBe Some(JsObject(
+        "remaining_time" -> 0.toJson, // This being 0 proves that the function exists and is callable at least.
+        "activation_id" -> "testid".toJson,
+        "function_name" -> "testfunction".toJson,
+        "function_version" -> "0.0.1".toJson
+      ))
+    }
+  }
 }

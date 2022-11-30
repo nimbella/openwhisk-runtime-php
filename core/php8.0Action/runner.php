@@ -18,6 +18,20 @@
  * limitations under the License.
  */
 
+ // Context is a wrapper type for the optional second parameter.
+class Context {
+    public $functionName;
+    public $functionVersion;
+    public $activationId;
+    public $deadline;
+
+    function getRemainingTimeInMillis() {
+        $epochNowInMs = floor(microtime(true) * 1000);
+        $deltaMs = $this->deadline - $epochNowInMs;
+        return $deltaMs > 0 ? $deltaMs : 0;
+    }
+}
+
 // open fd/3 as that's where we send the result
 $fd3 = fopen('php://fd/3', 'wb');
 
@@ -56,9 +70,18 @@ while ($f = fgets(STDIN)) {
         }
     }
 
+    // Construct a context.
+    $context = new Context;
+    $context->functionName = getenv('__OW_ACTION_NAME');
+    $context->functionVersion = getenv('__OW_ACTION_VERSION');
+    $context->activationId = getenv('__OW_ACTIVATION_ID');
+    $context->deadline = intval(getenv('__OW_DEADLINE'));
+
     $values = $data['value'] ?? [];
     try {
-        $result = $__functionName($values);
+        // It's safe to always pass both values in PHP as the context parameter would just be
+        // ignored if the user's not accessing it.
+        $result = $__functionName($values, $context);
 
         // convert result to an array if we can
         if (is_object($result)) {
