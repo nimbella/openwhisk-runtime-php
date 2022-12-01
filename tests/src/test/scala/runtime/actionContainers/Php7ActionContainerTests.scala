@@ -478,6 +478,7 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
           |     return [
           |         "remaining_time" => $context->getRemainingTimeInMillis(),
           |         "activation_id" => $context->activationId,
+          |         "request_id" => $context->requestId,
           |         "function_name" => $context->functionName,
           |         "function_version" => $context->functionVersion
           |      ];
@@ -491,7 +492,8 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
         JsObject(),
         Some(JsObject(
           "deadline" -> Instant.now.plusSeconds(10).toEpochMilli.toString.toJson,
-          "activation_id" -> "testid".toJson,
+          "activation_id" -> "testaid".toJson,
+          "transaction_id" -> "testtid".toJson,
           "action_name" -> "testfunction".toJson,
           "action_version" -> "0.0.1".toJson
         ))
@@ -502,7 +504,8 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       remainingTime should be > 9500 // We give the test 500ms of slack to invoke the function to avoid flakes.
       out shouldBe Some(JsObject(
         "remaining_time" -> remainingTime.toJson,
-        "activation_id" -> "testid".toJson,
+        "activation_id" -> "testaid".toJson,
+        "request_id" -> "testtid".toJson,
         "function_name" -> "testfunction".toJson,
         "function_version" -> "0.0.1".toJson
       ))

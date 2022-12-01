@@ -23,6 +23,7 @@ class Context {
     public $functionName;
     public $functionVersion;
     public $activationId;
+    public $requestId;
     public $deadline;
 
     function getRemainingTimeInMillis() {
@@ -75,6 +76,7 @@ while ($f = fgets(STDIN)) {
     $context->functionName = getenv('__OW_ACTION_NAME');
     $context->functionVersion = getenv('__OW_ACTION_VERSION');
     $context->activationId = getenv('__OW_ACTIVATION_ID');
+    $context->requestId = getenv('__OW_TRANSACTION_ID');
     $context->deadline = intval(getenv('__OW_DEADLINE'));
 
     $values = $data['value'] ?? [];
