@@ -25,6 +25,7 @@ import actionContainers.ActionContainer.withContainer
 import actionContainers.ResourceHelpers.ZipBuilder
 import spray.json._
 import spray.json.DefaultJsonProtocol._
+import java.time.Instant
 
 @RunWith(classOf[JUnitRunner])
 abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskActorSystem {
@@ -489,7 +490,7 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       val (runCode, out) = c.run(runPayload(
         JsObject(),
         Some(JsObject(
-          "deadline" -> "0".toJson,
+          "deadline" -> Instant.now.plusSeconds(10).toEpochMilli.toString.toJson,
           "activation_id" -> "testid".toJson,
           "action_name" -> "testfunction".toJson,
           "action_version" -> "0.0.1".toJson
@@ -497,8 +498,10 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       ))
       runCode should be(200)
 
+      val remainingTime = out.get.fields("remaining_time").convertTo[Int]
+      remainingTime should be > 9500 // We give the test 500ms of slack to invoke the function to avoid flakes.
       out shouldBe Some(JsObject(
-        "remaining_time" -> 0.toJson, // This being 0 proves that the function exists and is callable at least.
+        "remaining_time" -> remainingTime.toJson,
         "activation_id" -> "testid".toJson,
         "function_name" -> "testfunction".toJson,
         "function_version" -> "0.0.1".toJson
