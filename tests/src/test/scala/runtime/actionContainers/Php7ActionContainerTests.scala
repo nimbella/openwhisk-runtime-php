@@ -470,7 +470,7 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
   }
 
   it should s"support a function with a context parameter" in {
-    val (out, err) = withPhp7Container { c =>
+    val (out, err) = withActionContainer(Map("__OW_API_HOST" -> "testhost")) { c =>
       val code =
         """
           | <?php
@@ -480,7 +480,10 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
           |         "activation_id" => $context->activationId,
           |         "request_id" => $context->requestId,
           |         "function_name" => $context->functionName,
-          |         "function_version" => $context->functionVersion
+          |         "function_version" => $context->functionVersion,
+          |         "api_host" => $context->apiHost,
+          |         "api_key" => $context->apiKey,
+          |         "namespace" => $context->namespace
           |      ];
           | }
         """.stripMargin
@@ -495,7 +498,9 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
           "activation_id" -> "testaid".toJson,
           "transaction_id" -> "testtid".toJson,
           "action_name" -> "testfunction".toJson,
-          "action_version" -> "0.0.1".toJson
+          "action_version" -> "0.0.1".toJson,
+          "namespace" -> "testnamespace".toJson,
+          "auth_key" -> "testkey".toJson
         ))
       ))
       runCode should be(200)
@@ -507,7 +512,10 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
         "activation_id" -> "testaid".toJson,
         "request_id" -> "testtid".toJson,
         "function_name" -> "testfunction".toJson,
-        "function_version" -> "0.0.1".toJson
+        "function_version" -> "0.0.1".toJson,
+        "api_host" -> "testhost".toJson,
+        "api_key" -> "testkey".toJson,
+        "namespace" -> "testnamespace".toJson
       ))
     }
   }

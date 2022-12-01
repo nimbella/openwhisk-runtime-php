@@ -25,6 +25,9 @@ class Context {
     public $activationId;
     public $requestId;
     public $deadline;
+    public $apiHost;
+    public $apiKey;
+    public $namespace;
 
     function getRemainingTimeInMillis() {
         $epochNowInMs = floor(microtime(true) * 1000);
@@ -78,6 +81,9 @@ while ($f = fgets(STDIN)) {
     $context->activationId = getenv('__OW_ACTIVATION_ID');
     $context->requestId = getenv('__OW_TRANSACTION_ID');
     $context->deadline = intval(getenv('__OW_DEADLINE'));
+    $context->apiHost = getenv('__OW_API_HOST');
+    $context->apiKey = getenv('__OW_AUTH_KEY') ?: "";
+    $context->namespace = getenv('__OW_NAMESPACE');
 
     $values = $data['value'] ?? [];
     try {
