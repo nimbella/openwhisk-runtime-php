@@ -82,7 +82,7 @@ while ($f = fgets(STDIN)) {
     $context->requestId = getenv('__OW_TRANSACTION_ID');
     $context->deadline = intval(getenv('__OW_DEADLINE'));
     $context->apiHost = getenv('__OW_API_HOST');
-    $context->apiKey = getenv('__OW_AUTH_KEY') ?: "";
+    $context->apiKey = getenv('__OW_API_KEY') ?: "";
     $context->namespace = getenv('__OW_NAMESPACE');
 
     $values = $data['value'] ?? [];
