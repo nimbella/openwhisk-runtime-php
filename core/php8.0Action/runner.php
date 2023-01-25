@@ -43,8 +43,8 @@ $fd3 = fopen('php://fd/3', 'wb');
 register_shutdown_function(static function () use ($fd3) {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
-        file_put_contents('php://stderr', "An error occurred running the action.\n");
-        fwrite($fd3, "An error occurred running the action.\n");
+        file_put_contents('php://stderr', "An error occurred running the function.\n");
+        fwrite($fd3, "An error occurred running the function.\n");
     }
     fclose($fd3);
 });
@@ -106,14 +106,14 @@ while ($f = fgets(STDIN)) {
         if (!is_array($result)) {
             file_put_contents('php://stderr', 'Result must be an array but has type "'
                 . gettype($result) . '": ' . $result);
-            file_put_contents('php://stdout', 'The action did not return a dictionary.');
+            file_put_contents('php://stdout', 'The function did not return a dictionary.');
             $result = (string)$result;
         } else {
             $result = json_encode((object)$result);
         }
     } catch (Throwable $e) {
         file_put_contents('php://stderr', (string)$e);
-        $result = 'An error occurred running the action.';
+        $result = 'An error occurred running the function.';
     }
 
     // ensure that the sentinels will be on their own lines
