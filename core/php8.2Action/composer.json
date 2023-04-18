@@ -1,0 +1,12 @@
+{
+    "config": {
+        "platform": {
+            "php": "8.2"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "7.5.1",
+        "ramsey/uuid": "4.7.4",
+        "nimbella/nimbella": "^1.1"
+    }
+}
