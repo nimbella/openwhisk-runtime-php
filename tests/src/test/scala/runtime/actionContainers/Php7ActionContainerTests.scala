@@ -148,8 +148,7 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       runCode should not be (200)
 
       runRes shouldBe defined
-      runRes.get.fields.get("error") shouldBe defined
-    // runRes.get.fields("error").toString.toLowerCase should include("nooooo")
+      runRes.get.fields.get("error") shouldBe Some(JsString("An error occurred running the function."))
     }
 
     // Somewhere, the logs should be the error text
@@ -254,7 +253,7 @@ abstract class Php7ActionContainerTests extends BasicActionRunnerTests with WskA
       runCode should be(502)
 
       runRes shouldBe defined
-      runRes.get.fields.get("error") shouldBe defined
+      runRes.get.fields.get("error") shouldBe Some(JsString("An error occurred running the function."))
     }
 
     // Somewhere, the logs should be the error text

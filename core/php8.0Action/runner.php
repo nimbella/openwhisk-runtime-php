@@ -44,7 +44,7 @@ register_shutdown_function(static function () use ($fd3) {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR], true)) {
         file_put_contents('php://stderr', "An error occurred running the function.\n");
-        fwrite($fd3, "An error occurred running the function.\n");
+        fwrite($fd3, '{"error": "An error occurred running the function."}' . "\n");
     }
     fclose($fd3);
 });
@@ -104,22 +104,21 @@ while ($f = fgets(STDIN)) {
 
         // process the result
         if (!is_array($result)) {
-            file_put_contents('php://stderr', 'Result must be an array but has type "'
-                . gettype($result) . '": ' . $result);
+            file_put_contents('php://stderr', 'Result must be an array but has type "' . gettype($result) . '": ' . $result);
             file_put_contents('php://stdout', 'The function did not return a dictionary.');
             $result = (string)$result;
         } else {
+            // cast result to an object for json_encode to ensure that an empty array becomes "{}" & send to fd/3
             $result = json_encode((object)$result);
         }
     } catch (Throwable $e) {
         file_put_contents('php://stderr', (string)$e);
-        $result = 'An error occurred running the function.';
+        $result = '{"error": "An error occurred running the function."}';
     }
 
     // ensure that the sentinels will be on their own lines
     file_put_contents('php://stderr', "\n" . $sentinel);
     file_put_contents('php://stdout', "\n" . $sentinel);
 
-    // cast result to an object for json_encode to ensure that an empty array becomes "{}" & send to fd/3
     fwrite($fd3, $result . "\n");
 }
