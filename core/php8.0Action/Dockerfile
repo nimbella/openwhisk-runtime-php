@@ -39,6 +39,10 @@ FROM php:8.0-cli-buster
 # select the builder to use
 ARG GO_PROXY_BUILD_FROM=source
 
+# Point to Debian archive repositories
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org|archive.debian.org/debian-security|g' /etc/apt/sources.list
+
 # install PHP extensions
 RUN apt-get -y update \
     && apt-get -y install --no-install-recommends \
