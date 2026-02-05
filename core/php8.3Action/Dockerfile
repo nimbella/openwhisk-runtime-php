@@ -70,6 +70,7 @@ RUN mkdir -p /phpAction/action
 WORKDIR /phpAction
 COPY compile.php /bin/compile.php
 COPY runner.php /bin/runner.php
+RUN chmod +x /bin/compile.php /bin/runner.php
 ENV OW_COMPILER=/bin/compile.php
 
 # the launcher must wait for an ack
