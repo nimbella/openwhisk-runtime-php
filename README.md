@@ -24,7 +24,7 @@
 
 ## PHP versions
 
-This runtime provides PHP 8.0, 7.4 and 7.3.
+This runtime provides PHP 8.5, 8.4, 8.3, 8.2, 8.0, 7.4 and 7.3.
 
 ### Give it a try today
 To use as a docker action
